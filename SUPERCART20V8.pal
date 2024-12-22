@@ -1,25 +1,37 @@
-// Atari 7800 SUPERCART is a basic cart with no ROM bank at $4000-$7FFF
+// Atari 7800 SUPERCART
+//
+// The jumper FIX 1-2 indicates that we have a 16k
+// ROM bank at 4000-7FFF.
+// FIX 2-3 indicates no ROM at 4000-7FFF
+//
 // The last bank N at C000 is fixed
+// The bank N-1 at 4000 is fixed if FIX is on.
+// Bankswitching 0..N-2 go to 8000
 //
-// The maximum number of banks is 32 (N = 31)
+// The maximum number of banks is 16 (N = 15)
 //
-// corresponding to a 512k game
+// corresponding to a 256k game
 //
-// But to get this to work you need to cut two traces on the PCB.
+// For EXFIX games you can use the ROM as it is
+//
+// You can change a EXROM a78 file into a EXFIX binary.
+//
+//  with open(filename, 'rb') as file:
+//      data = file.read()
+//      data = data[128:]
+//      bank4000 = data[:16 * 1024]
+//      rom = bytearray([255] * 256 * 1024)
+//      rom[0:128 * 1024] = data[16 * 1024:]
+//      rom[128 * 1024:] = data[16 * 1024:]
+//      rom[-32 * 1024:-16 * 1024] = bank4000[:]
+//  with open('rom.bin', 'wb') as g:
+//      g.write(rom)
 //
 // this configuration has
 //
 // - a wire between pin 1 and pin 22 (CLK = write to area 8000..BFFF)
-//   This latches data pins D0, D1, D2, D3, D4
-//   to outputs BA14, BA15, BA16, BA17, BA18
-//
-// - a wire between pins 21 and 19. (cut)
-//   this tied two outputs together. It won't work.
-//
-// - a wire between pins 13 and 15. (cut)
-//   This is the Bank select output. If it is zero it will disable the chip
-//   and the resistor pull all address pins high allowing the high
-//   bank N-1 to appear on C000 .. FFFF
+//   This latches data pins D0, D1, D2, D3
+//   to outputs BA14, BA15, BA16, BA17
 //
 //   The pins 1, 4, 20 and 23 are outputs for the 74LS02
 //
@@ -27,46 +39,62 @@
 //   When using a GAL chip solder switches W8 and W9
 //
 // - P_7 is GND
-// These wires exists on the mini-ultra pcb
 
 // Pin 14 to 23 may be ouputs. Rest are inputs.
+//
+// Note: P_1, P_4, P_20 and P_23 are outputs in 74LS02
+//       P_7 is ground in 74LS02
+// So we avoid conflicts in choosing our pins.
 
-chip 20V8R;   // 20V8R
+chip 20V8R;   // 20V8 registered mode
 
 pin  1 CLK;   pin 24 VCC;
-pin  2 RW;    pin 23 D5;
-pin  3 CLK2;  pin 22 !WR;
-pin  4 D4;    pin 21 ZA14;
+pin  2 RW;    pin 23 P_23;
+pin  3 CLK2;  pin 22 WR;
+pin  4 P_4;   pin 21 P_21;
 pin  5 A14;   pin 20 !ROMCS;
 pin  6 A15;   pin 19 BA14;
 pin  7 P_7;   pin 18 BA15;
 pin  8 D3;    pin 17 BA16;
 pin  9 D0;    pin 16 BA17;
-pin 10 D1;    pin 15 BA18;
-pin 11 D2;    pin 14 BA19;
+pin 10 D1;    pin 15 P_15;
+pin 11 D2;    pin 14 FIX;
 pin 12 GND;   pin 13 !OE;
 
 // Define bits controlling the bank switching
-  BA14 := D0 | !A14;
-  BA15 := D1 | !A14;
-  BA16 := D2 | !A14;
-  BA17 := D3 | !A14;
-  BA18 := 1;
-  ZA14 := D0 | !A14;
+   BA14 =   D0 &  A15 & !A14 |      // Use D0 only for 8000-BFFF
+           A15 &  A14        ;      // set last 16k for C000-FFFF
+                                    // set to 2nd last 16k for 4000-7FFF
+   BA15 =   D1 &  A15 & !A14 |      // Use D1 only for 8000-BFFF
+           A15 &  A14        |      // set last 16k for C000-FFFF
+          !A15 &  A14        ;      // set to 2nd last 16k for 4000-7FFF
+   BA16 =   D2 &  A15 & !A14 |      // Use D2 only for 8000-BFFF
+           A15 &  A14        |      // set last 16k for C000-FFFF
+          !A15 &  A14        ;      // set to 2nd last 16k for 4000-7FFF
+   BA17 =   D3 &  A15 & !A14 |      // Use D3 only for 8000-BFFF
+           A15 &  A14        |      // set last 16k for C000-FFFF
+          !A15 &  A14        ;      // set to 2nd last 16k for 4000-7FFF
 
-// Set ROMCS for address range 8000-FFFF read
-  ROMCS =  A15 &         RW;         // 8000-FFFF read
+// Set ROMCS for address range 4000-FFFF read
+  ROMCS =  A15 &         RW |       // 8000-FFFF read
+           FIX &  A14 &  RW;        // 4000-7FFF read if FIX set
 
 // Detect write to bankswitch selection
-     WR =  A15 & !A14 & !RW & CLK2; // 8000-BFFF write
+    !WR =  A15 & !A14 & !RW & CLK2; // 8000-BFFF write
                                     // This advances the CLK on the chip
 
 // 20V8R needs OE term for non-registered outputs
-   ROMCS.OE = 1;
       WR.OE = 1;
+    P_21.OE = 0;
+   ROMCS.OE = 1;
+    BA14.OE = 1;
+    BA15.OE = 1;
+    BA16.OE = 1;
+    BA17.OE = 1;
+    P_15.OE = 0;
 
 // generate automatic test vectors
-test ROMCS WR;
+//test WR P_21 ROMCS BA14 BA15 BA16 BA17;
 
 // latch test vectors
 test [  CLK=C !D0  D1 !D2  OE -> !BA14   BA15  !BA16   ]; // load
