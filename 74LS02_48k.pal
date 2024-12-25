@@ -1,0 +1,77 @@
+// Atari 7800 74LS02
+//
+// 64k ROM with active plain area 4000-7FFF.
+//
+// this configuration has
+//
+// - a wire between pin 1 and pin 22 (WR to CLK)
+//
+// - a wire between pin 13 and pin 15 (P_15 to OE)
+//
+// - a wire between pin 21 and pin 19 (P_23 to BA14)
+//
+//   The pins 1, 4, 20 and 23 are outputs for the 74LS02
+//
+//   When using a 74LS02 solder switches W1 and W2
+//   When using a GAL chip solder switches W8 and W9
+//
+// - P_7 is GND
+
+// Pin 14 to 23 may be ouputs. Rest are inputs.
+//
+// Note: P_1, P_4, P_20 and P_23 are outputs in 74LS02
+//       P_7 is ground in 74LS02
+// So we avoid conflicts in choosing our pins.
+
+chip 20V8R;   // 20V8 registered mode
+
+pin  1 CLK;   pin 24 VCC;
+pin  2 RW;    pin 23 P_23;
+pin  3 CLK2;  pin 22 WR;
+pin  4 P_4;   pin 21 P_21;
+pin  5 A14;   pin 20 !ROMCS;
+pin  6 A15;   pin 19 BA14;
+pin  7 P_7;   pin 18 BA15;
+pin  8 D3;    pin 17 BA16;
+pin  9 D0;    pin 16 BA17;
+pin 10 D1;    pin 15 P_15;
+pin 11 D2;    pin 14 P_14;
+pin 12 GND;   pin 13 !OE;
+
+// Define bits controlling the bank switching
+   BA14 =  A14;
+   BA15 =  A15;
+   BA16 =  0;
+   BA17 =  0;
+
+// Set ROMCS for address range 4000-FFFF read
+  ROMCS =  A15 | A14      ;
+
+// Set WR is not used in this design
+     WR =  0;
+
+// P_15 has to be '0' to keep the chip going
+   P_15 = 0;
+
+// P_21 has to be identical to BA14 or OE=0 to keep the chip going
+   P_21 = 1;
+
+// 20V8R needs OE term for non-registered outputs
+      WR.OE = 1;
+   ROMCS.OE = 1;
+    BA14.OE = 1;
+    BA15.OE = 1;
+    BA16.OE = 1;
+    BA17.OE = 1;
+    P_15.OE = 1;
+    P_21.OE = 0;
+
+// generate automatic test vectors
+test ROMCS BA14 BA15;
+
+// test ROMCS
+test [  A15  A14 RW OE ->   ROMCS ]; // ROMCS
+test [  A15 !A14 RW OE ->   ROMCS ]; // ROMCS
+test [ !A15  A14 RW OE ->   ROMCS ]; // ROMCS
+test [ !A15 !A14 RW OE ->  !ROMCS ]; // ROMCS
+
