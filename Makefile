@@ -1,20 +1,18 @@
 objects= \
 	palwiz \
-	SUPERCART22V10.jed \
-	SUPERCART20V8.jed \
+	74LS02_48k.jed \
+	Easter.bin \
 
 all: $(objects)
 
 palwiz: palwiz.c
 	gcc -o palwiz palwiz.c
 
-SUPERCART22V10.jed: SUPERCART22V10.pal
-	./palwiz SUPERCART22V10.pal | tee SUPERCART22V10.jed
-	cp SUPERCART22V10.jed ~/dtop
+74LS02_48k.jed: 74LS02_48k.pal
+	./palwiz 74LS02_48k.pal | tee 74LS02_48k.jed
 
-SUPERCART20V8.jed: SUPERCART20V8.pal
-	./palwiz SUPERCART20V8.pal | tee SUPERCART20V8.jed
-	cp SUPERCART20V8.jed ~/dtop
+Easter.bin: Easter.a78
+	python3 build48k.py Easter.a78
 
 clean:
-	rm -f $(objects) *.c~
+	rm -f $(objects) *.c~ Easter.bin

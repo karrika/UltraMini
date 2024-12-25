@@ -7,17 +7,12 @@ def main():
     filename = sys.argv[1]
 
     try:
-        with open(filename, 'rb') as file:
-            file.read(128)
-            b0 = file.read(16 * 1024)
-            b1 = file.read(16 * 1024)
-            b2 = file.read(16 * 1024)
-
-        rom = bytearray([255] * 16 * 1024)
-        rom = rom + b0 + b1 + b2
+        with open(filename, 'rb') as f:
+            data = f.read()
         filename = filename.rsplit( ".", 1)[0] + ".bin"
-        with open(filename, 'wb') as g:
-            g.write(rom)
+        g = open(filename, 'wb')
+        g.write(bytearray([255] * 16 * 1024))
+        g.write(data[128:])
     except FileNotFoundError:
         print(f"Error: The file '{filename}' was not found.")
     except Exception as e:
