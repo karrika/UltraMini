@@ -7,7 +7,7 @@ objects= \
 	Asteroids3D.bin \
 	breakout.bin \
 	Easter.bin \
-	BB.a78 \
+	BB.bin \
 
 all: $(objects)
 
