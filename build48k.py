@@ -9,6 +9,9 @@ def main():
     try:
         with open(filename, 'rb') as f:
             data = f.read()
+        if len(data) != 48 * 1024 + 128:
+            print("Size should be", 48 * 1024 + 128, "not", len(data))
+            quit()
         filename = filename.rsplit( ".", 1)[0] + ".bin"
         g = open(filename, 'wb')
         g.write(bytearray([255] * 16 * 1024))

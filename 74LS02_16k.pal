@@ -1,6 +1,6 @@
 // Atari 7800 74LS02
 //
-// 16k ROM with active plain area C000-7FFF.
+// 16k ROM with active plain area C000-FFFF.
 //
 // this configuration has
 //
