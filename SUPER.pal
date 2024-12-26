@@ -1,0 +1,99 @@
+// Atari 7800 SUPER
+//
+// 128k ROM bank at 8000-FFFF.
+//
+// Bankswitching (8 banks) go to 8000-BFFF
+//
+// The last bank is fixed at C000-FFFF
+//
+// this configuration has
+//
+// - a wire between pin 1 and pin 22 (CLK = write to area 8000..BFFF)
+//   This latches data pins D0, D1, D2
+//   to outputs D0S, D1S, D2S
+//
+// - a wire between pin 13 and pin 15 (cut)
+//
+// - a wire between pin 21 and pin 19 (cut)
+//
+//   The pins 1, 4, 20 and 23 are outputs for the 74LS02
+//
+//   When using a 74LS02 solder switches W1 and W2
+//   When using a GAL chip don't solder switches W1, W2, W8 or W9
+//
+// - P_7 is GND
+
+// Pin 15 to 22 may be ouputs. Rest are inputs.
+//
+// Note: P_1, P_4, P_20 and P_23 are outputs in 74LS02
+//       P_7 is ground in 74LS02
+// So we avoid conflicts in choosing our pins.
+
+chip 20V8R;   // 20V8 registered mode
+
+pin  1 CLK;   pin 24 VCC;
+pin  2 RW;    pin 23 P_23;
+pin  3 CLK2;  pin 22 WR;
+pin  4 P_4;   pin 21 D0S;
+pin  5 A14;   pin 20 !ROMCS;
+pin  6 A15;   pin 19 BA14;
+pin  7 P_7;   pin 18 BA15;
+pin  8 P_8;   pin 17 BA16;
+pin  9 D0;    pin 16 D1S;
+pin 10 D1;    pin 15 D2S;
+pin 11 D2;    pin 14 P_14;
+pin 12 GND;   pin 13 !OE;
+
+// Define the register for latched A14, A15, A16.
+    D0S =  D0;
+    D1S =  D1;
+    D2S =  D2;
+
+// Define logic for allowing banked at 8000 and a fixed bank at C000
+   BA14 =  D0S &  A15 & !A14 |      // Use D0 only for 8000-BFFF
+           A15 &  A14        ;      // set last 16k for C000-FFFF
+   BA15 =  D1S &  A15 & !A14 |      // Use D1 only for 8000-BFFF
+           A15 &  A14        ;      // set last 16k for C000-FFFF
+   BA16 =  D2S &  A15 & !A14 |      // Use D2 only for 8000-BFFF
+           A15 &  A14        ;      // set last 16k for C000-FFFF
+
+// Set ROMCS for address range 8000-FFFF read
+  ROMCS =  A15               ;
+
+// Detect write to bankswitch selection
+     WR =  A15 & !A14 & !RW & !CLK2 ; // 8000-BFFF write
+                                      // This advances the CLK on the chip
+
+// 20V8R needs OE term for non-registered outputs
+     D0S.OE = 1;
+     D1S.OE = 1;
+     D2S.OE = 1;
+    BA14.OE = 1;
+    BA15.OE = 1;
+    BA16.OE = 1;
+   ROMCS.OE = 1;
+      WR.OE = 1;
+
+// generate automatic test vectors
+//test WR ROMCS BA14 BA15 BA16;
+
+// latch test vectors
+test [  CLK=C !D0  D1 !D2 -> !D0S  D1S  !D2S  ]; // load
+test [ !CLK    D0 !D1  D2 -> !D0S  D1S  !D2S  ]; // latched
+test [  CLK=C  D0 !D1  D2 ->  D0S !D1S   D2S  ]; // load
+test [ !CLK   !D0  D1 !D2 ->  D0S !D1S   D2S  ]; // latched
+
+// fixed C000-FFFF test vectors
+//test [  A15  A14 !D0 !D1 !D2 ->   BA14   BA15   BA16  !BA17 ]; // COOO access
+//test [  A15 !A14 !D0 !D1 !D2 ->  !BA14  !BA15  !BA16  !BA17 ]; // 8OOO access
+//test [ !A15  A14 !D0 !D1 !D2 ->  !BA14  !BA15  !BA16   BA17 ]; // 4OOO access
+//test [  A15  A14 !D0  D1 !D2 ->   BA14   BA15   BA16  !BA17 ]; // COOO access
+//test [  A15 !A14 !D0 !D1 !D2 ->  !BA14  !BA15  !BA16   BA17 ]; // 8OOO access
+//test [ !A15  A14  D0 !D1  D2 ->  !BA14  !BA15  !BA16   BA17 ]; // 4OOO access
+
+// test ROMCS
+test [  A15  A14 RW OE ->   ROMCS ]; // ROMCS
+test [  A15 !A14 RW OE ->   ROMCS ]; // ROMCS
+test [ !A15  A14 RW OE ->  !ROMCS ]; // ROMCS
+test [ !A15 !A14 RW OE ->  !ROMCS ]; // ROMCS
+
