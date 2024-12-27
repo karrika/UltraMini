@@ -16,7 +16,8 @@ def main():
         print(filename)
         g = open(filename, 'wb')
         g.write(data[128 + 16 * 1024:])
-        g.write(data[128:128 + 16 * 1024])
+        for i in range(8):
+            g.write(data[128:128 + 16 * 1024])
     except FileNotFoundError:
         print(f"Error: The file '{filename}' was not found.")
     except Exception as e:

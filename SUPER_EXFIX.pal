@@ -1,6 +1,6 @@
-// Atari 7800 SUPER
+// Atari 7800 SUPER_EXFIX
 //
-// 128k ROM bank at 8000-FFFF.
+// 128k or 256k ROM bank at 8000-FFFF.
 //
 // Bankswitching (8 banks) go to 8000-BFFF
 //
@@ -39,10 +39,10 @@ pin  4 P_4;   pin 21 ZA14;
 pin  5 A14;   pin 20 !ROMCS;
 pin  6 A15;   pin 19 BA14;
 pin  7 P_7;   pin 18 BA15;
-pin  8 D4;    pin 17 BA16;
+pin  8 D3;    pin 17 BA16;
 pin  9 D0;    pin 16 BA17;
 pin 10 D1;    pin 15 !OEO;
-pin 11 D2;    pin 14 D3;
+pin 11 D2;    pin 14 P_14;
 pin 12 GND;   pin 13 !OE;
 
 // CLK2 high is when you can write things to the data bus
@@ -52,6 +52,7 @@ pin 12 GND;   pin 13 !OE;
    BA14 :=  D0;
    BA15 :=  D1;
    BA16 :=  D2;
+   BA17 :=  D3;
    ZA14  =   0              ; // Activate  4000-7FFF
  ZA14.OE = !A15 &  A14 & RW ;
                               // else use  C000-FFFF
@@ -74,7 +75,6 @@ pin 12 GND;   pin 13 !OE;
 
     ROMCS.OE = 1;
       LCO.OE = 1;
-     BA17.OE = 0;
 
 // generate automatic test vectors
-//test LCO ROMCS BA14 BA15 BA16;
+//test LCO ROMCS BA14 BA15 BA16 BA17;

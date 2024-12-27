@@ -5,10 +5,13 @@ objects= \
 	74LS02_48k.jed \
 	SUPER.jed \
 	SUPER_EXFIX.jed \
+	SUPER_EXROM.jed \
 	Asteroids3D.bin \
 	breakout.bin \
 	Easter.bin \
 	Cracked.bin \
+	AB.bin \
+	1942.bin \
 
 all: $(objects)
 
@@ -30,6 +33,9 @@ SUPER.jed: SUPER.pal
 SUPER_EXFIX.jed: SUPER_EXFIX.pal
 	./palwiz SUPER_EXFIX.pal | tee SUPER_EXFIX.jed
 
+SUPER_EXROM.jed: SUPER_EXROM.pal
+	./palwiz SUPER_EXROM.pal | tee SUPER_EXROM.jed
+
 # Test binary for 16k
 Asteroids3D.bin: Asteroids3D.a78
 	python3 build16k.py Asteroids3D.a78
@@ -46,5 +52,13 @@ Easter.bin: Easter.a78
 Cracked.bin: Cracked.a78
 	python3 build128k.py Cracked.a78
 
+# Test binary for 144k
+AB.bin: AB.a78
+	python3 build144k.py AB.a78
+
+# Test binary for 256k
+1942.bin: 1942.a78
+	python3 build256k.py 1942.a78
+
 clean:
-	rm -f $(objects) *.c~ Easter.bin breakout.bin Asteroids3D.bin
+	rm -f $(objects) *.c~ Easter.bin breakout.bin Asteroids3D.bin AB.bin

@@ -51,52 +51,24 @@ pin 12 GND;   pin 13 !OE;
    BA14 :=  D0;
    BA15 :=  D1;
    BA16 :=  D2;
-//   ZA14  =   0              ; // Activate  4000-7FFF
-// ZA14.OE = !A15 &  A14 & RW ; // Activate  4000-7FFF
  ZA14.OE = 0;
-                              // Else use  C000-FFFF
 
-// Set ROMCS for address range 4000-FFFF read
-//  ROMCS =  A15 & RW |
-//           A14 & RW ;
-  ROMCS =  A15 & RW ;
+// Set ROMCS for address range 8000-FFFF read
+   ROMCS =  A15 & RW ;
 
 // Detect write to bankswitch selection
     !LCO =  A15 & !A14 & !RW & CLK2 ; // 8000-BFFF read from data bus
 
 // Handle the chip output enable
-         OEO = !A14; 
-      OEO.OE = 1;
+     OEO = !A14; 
+  OEO.OE = 1;
 
 
 // 20V8R needs OE term for non-registered outputs
-// Use OE for letting pull-ups access banks 6 and7
-// Low will pull down bank 6
-
-    ROMCS.OE = 1;
-      LCO.OE = 1;
-     BA17.OE = 0;
+ROMCS.OE = 1;
+  LCO.OE = 1;
+ BA17.OE = 0;
 
 // generate automatic test vectors
 //test LCO ROMCS BA14 BA15 BA16;
-
-// latch test vectors
-//test [  CLK=C !D0  D1 !D2 -> !D0S  D1S  !D2S  ]; // load
-//test [ !CLK    D0 !D1  D2 -> !D0S  D1S  !D2S  ]; // latched
-//test [  CLK=C  D0 !D1  D2 ->  D0S !D1S   D2S  ]; // load
-//test [ !CLK   !D0  D1 !D2 ->  D0S !D1S   D2S  ]; // latched
-
-// fixed C000-FFFF test vectors
-//test [  A15  A14 !D0 !D1 !D2 ->   BA14   BA15   BA16  !BA17 ]; // COOO access
-//test [  A15 !A14 !D0 !D1 !D2 ->  !BA14  !BA15  !BA16  !BA17 ]; // 8OOO access
-//test [ !A15  A14 !D0 !D1 !D2 ->  !BA14  !BA15  !BA16   BA17 ]; // 4OOO access
-//test [  A15  A14 !D0  D1 !D2 ->   BA14   BA15   BA16  !BA17 ]; // COOO access
-//test [  A15 !A14 !D0 !D1 !D2 ->  !BA14  !BA15  !BA16   BA17 ]; // 8OOO access
-//test [ !A15  A14  D0 !D1  D2 ->  !BA14  !BA15  !BA16   BA17 ]; // 4OOO access
-
-// test ROMCS
-test [  A15  A14 RW OE ->   ROMCS ]; // ROMCS
-test [  A15 !A14 RW OE ->   ROMCS ]; // ROMCS
-test [ !A15  A14 RW OE ->  !ROMCS ]; // ROMCS
-test [ !A15 !A14 RW OE ->  !ROMCS ]; // ROMCS
 
