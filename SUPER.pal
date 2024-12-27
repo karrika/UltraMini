@@ -57,8 +57,9 @@ pin 12 GND;   pin 13 !OE;
                               // Else use  C000-FFFF
 
 // Set ROMCS for address range 4000-FFFF read
-  ROMCS =  A15 & RW |
-           A14 & RW ;
+//  ROMCS =  A15 & RW |
+//           A14 & RW ;
+  ROMCS =  A15 & RW ;
 
 // Detect write to bankswitch selection
     !LCO =  A15 & !A14 & !RW & CLK2 ; // 8000-BFFF read from data bus
