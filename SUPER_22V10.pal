@@ -1,0 +1,76 @@
+// Atari 7800 SUPER
+//
+// 128k ROM bank at 8000-FFFF.
+//
+// Bankswitching (8 banks) go to 8000-BFFF
+//
+// The last bank is fixed at C000-FFFF
+//
+// this configuration has
+//
+// - a wire between pin 1 and pin 22 (CLK = write to area 8000..BFFF)
+//   This latches data pins D0, D1, D2
+//   to outputs D0S, D1S, D2S
+//
+// - a wire between pin 13 and pin 15 (allows to disable outputs)
+//
+// - a wire between pin 21 and pin 19 (allows to clear BA14 pin)
+//
+//   The pins 1, 4, 20 and 23 are outputs for the 74LS02
+//
+//   When using a 74LS02 solder switches W1 and W2
+//   When using a GAL chip don't solder switches W1, W2, W8 or W9
+//
+// - P_7 is GND
+//
+// Pin 15 to 22 may be ouputs. Rest are inputs.
+//
+// Note: P_1, P_4, P_20 and P_23 are outputs in 74LS02
+//       P_7 is ground in 74LS02
+// So we avoid conflicts in choosing our pins.
+
+chip 22V10;
+
+pin  1 CLK;   pin 24 VCC;
+pin  2 RW;    pin 23 P_23;
+pin  3 CLK2;  pin 22 LCO;
+pin  4 P_4;   pin 21 ZA14;
+pin  5 A14;   pin 20 !ROMCS;
+pin  6 A15;   pin 19 BA14;
+pin  7 P_7;   pin 18 BA15;
+pin  8 D3;    pin 17 BA16;
+pin  9 D0;    pin 16 BA17;
+pin 10 D1;    pin 15 !OEO;
+pin 11 D2;    pin 14 P_14;
+pin 12 GND;   pin 13 !OE;
+
+// CLK2 high is when you can write things to the data bus
+// CLK2 low is when you can read the databus
+
+// Define logic for allowing banked at 8000 and a fixed bank at C000
+   BA14 :=  D0;
+   BA15 :=  D1;
+   BA16 :=  D2;
+   BA17 :=  D3;
+ ZA14.OE = 0;
+
+// Set ROMCS for address range 8000-FFFF read
+   ROMCS =  A15 & RW ;
+
+// Detect write to bankswitch selection
+    !LCO =  A15 & !A14 & !RW & CLK2 ; // 8000-BFFF read from data bus
+
+// Handle the chip output enable
+     OEO = !A14; 
+  OEO.OE = 1;
+
+
+// 20V8R needs OE term for non-registered outputs
+ROMCS.OE = 1;
+  LCO.OE = 1;
+ P_14.OE = 0;
+ P_23.OE = 0;
+
+// generate automatic test vectors
+//test LCO ROMCS BA14 BA15 BA16;
+
