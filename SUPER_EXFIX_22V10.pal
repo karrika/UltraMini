@@ -74,8 +74,8 @@ pin 12 GND;   pin 13 !OE;
 
     ROMCS.OE = 1;
       LCO.OE = 1;
-     P_14.OE = 1;
-     P_23.OE = 1;
+     P_14.OE = 0;
+     P_23.OE = 0;
 
 // generate automatic test vectors
 //test LCO ROMCS BA14 BA15 BA16 BA17;

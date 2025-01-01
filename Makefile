@@ -4,7 +4,9 @@ objects= \
 	74LS02_32k.jed \
 	74LS02_48k.jed \
 	SUPER.jed \
+	SUPER_22V10.jed \
 	SUPER_EXFIX.jed \
+	SUPER_EXFIX_22V10.jed \
 	SUPER_EXROM.jed \
 	Asteroids3D.bin \
 	breakout.bin \
@@ -12,6 +14,7 @@ objects= \
 	Cracked.bin \
 	AB.bin \
 	1942.bin \
+	RType2.bin \
 	Warlords.bin \
 
 all: $(objects)
@@ -31,8 +34,14 @@ palwiz: palwiz.c
 SUPER.jed: SUPER.pal
 	./palwiz SUPER.pal | tee SUPER.jed
 
+SUPER_22V10.jed: SUPER_22V10.pal
+	./palwiz SUPER_22V10.pal | tee SUPER_22V10.jed
+
 SUPER_EXFIX.jed: SUPER_EXFIX.pal
 	./palwiz SUPER_EXFIX.pal | tee SUPER_EXFIX.jed
+
+SUPER_EXFIX_22V10.jed: SUPER_EXFIX_22V10.pal
+	./palwiz SUPER_EXFIX_22V10.pal | tee SUPER_EXFIX_22V10.jed
 
 SUPER_EXROM.jed: SUPER_EXROM.pal
 	./palwiz SUPER_EXROM.pal | tee SUPER_EXROM.jed
@@ -57,7 +66,11 @@ Cracked.bin: Cracked.a78
 AB.bin: AB.a78
 	python3 build144k.py AB.a78
 
-# Test binary for 256k use SUPER.jed
+# Test binary for 128k with 2600+ extend to 256k ROM use SUPER.jed
+RType2.bin: RType2.a78
+	python3 build128k.py RType2.a78
+
+# Test binary for 256k with 2600+ hack use SUPER.jed
 1942.bin: 1942.a78
 	python3 build256kp.py 1942.a78
 
