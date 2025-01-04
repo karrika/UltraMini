@@ -65,6 +65,7 @@ Easter.bin: Easter.a78
 # Test binary for 128k use SUPER_EXFIX.jed
 Cracked.bin: Cracked.a78
 	python3 stripheader.py Cracked.a78
+	python3 filltosize.py Cracked.bin 256
 
 # Test binary for 144k use SUPER_EXROM.jed
 AB.bin: AB.a78
