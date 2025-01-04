@@ -11,11 +11,11 @@
 //
 // - a wire between pin 1 and pin 22 (CLK = write to area 8000..BFFF)
 //   This latches data pins D0, D1, D2
-//   to outputs D0S, D1S, D2S
+//   to outputs BA14, BA15, BA16
 //
 // - a wire between pin 13 and pin 15 (allows to disable outputs)
 //
-// - a wire between pin 21 and pin 19 (allows to clear BA14 pin)
+// - a wire between pin 21 and pin 19 (not used)
 //
 //   The pins 1, 4, 20 and 23 are outputs for the 74LS02
 //
@@ -33,16 +33,16 @@
 chip 20V8R;   // 20V8 registered mode
 
 pin  1 CLK;   pin 24 VCC;
-pin  2 RW;    pin 23 P_23;
-pin  3 CLK2;  pin 22 LCO;
-pin  4 P_4;   pin 21 ZA14;
+pin  2 RW;    pin 23 D5;
+pin  3 CLK2;  pin 22 !WR;
+pin  4 D4;    pin 21 ZA14;
 pin  5 A14;   pin 20 !ROMCS;
 pin  6 A15;   pin 19 BA14;
 pin  7 P_7;   pin 18 BA15;
-pin  8 D4;    pin 17 BA16;
+pin  8 D3;    pin 17 BA16;
 pin  9 D0;    pin 16 BA17;
 pin 10 D1;    pin 15 !OEO;
-pin 11 D2;    pin 14 D3;
+pin 11 D2;    pin 14 BA19;
 pin 12 GND;   pin 13 !OE;
 
 // CLK2 high is when you can write things to the data bus
@@ -53,26 +53,26 @@ pin 12 GND;   pin 13 !OE;
    BA15 :=  D1;
    BA16 :=  D2;
    BA17  =   !A15 &  A14            ; // 2nd ROM is high 128k
- ZA14.OE =   0                      ; // Don't use ZA14 at all
+
+// Don't use ZA14 at all
+ ZA14.OE =   0;
 
 // Set ROMCS for address range 4000-FFFF read
   ROMCS =  A15 & RW |
            A14 & RW ;
 
 // Detect write to bankswitch selection
-    !LCO =  A15 & !A14 & !RW & CLK2 ; // 8000-BFFF read from data bus
+    WR =  A15 & !A14 & !RW & CLK2 ; // 8000-BFFF read from data bus
 
-// Handle the chip output enable
+// Handle the chip output enable to let resitors power bank at C000-FFFF
          OEO = !A14; 
-      OEO.OE = 1;
-
 
 // 20V8R needs OE term for non-registered outputs
-// Use OE for letting pull-ups access banks 6 and7
-
     ROMCS.OE = 1;
-      LCO.OE = 1;
+       WR.OE = 1;
      BA17.OE = 1;
+      OEO.OE = 1;
 
 // generate automatic test vectors
-//test LCO ROMCS BA14 BA15 BA16;
+test WR ROMCS;
+
