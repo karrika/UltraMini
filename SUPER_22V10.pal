@@ -2,7 +2,7 @@
 //
 // 1024k ROM bank at 8000-FFFF.
 //
-// Bankswitching (32 banks) go to 8000-BFFF
+// Bankswitching (64 banks) go to 8000-BFFF
 //
 // The last bank is fixed at C000-FFFF
 //
