@@ -8,13 +8,14 @@ objects= \
 	SUPER_EXFIX.jed \
 	SUPER_EXFIX_22V10.jed \
 	SUPER_EXROM.jed \
+	SUPER_EXROM_22V10.jed \
 	Asteroids3D.bin \
 	breakout.bin \
 	Easter.bin \
 	Cracked.bin \
 	AB.bin \
-	1942.bin \
-	RType2.bin \
+	1942xm.bin \
+	RType2xm.bin \
 	Warlords.bin \
 
 all: $(objects)
@@ -46,6 +47,9 @@ SUPER_EXFIX_22V10.jed: SUPER_EXFIX_22V10.pal
 SUPER_EXROM.jed: SUPER_EXROM.pal
 	./palwiz SUPER_EXROM.pal | tee SUPER_EXROM.jed
 
+SUPER_EXROM_22V10.jed: SUPER_EXROM_22V10.pal
+	./palwiz SUPER_EXROM_22V10.pal | tee SUPER_EXROM_22V10.jed
+
 # Test binary for 16k use 74LS02_16k.jed
 Asteroids3D.bin: Asteroids3D.a78
 	python3 build16k.py Asteroids3D.a78
@@ -60,19 +64,26 @@ Easter.bin: Easter.a78
 
 # Test binary for 128k use SUPER_EXFIX.jed
 Cracked.bin: Cracked.a78
-	python3 build128k.py Cracked.a78
+	python3 stripheader.py Cracked.a78
 
-# Test binary for 144k use SUPER_EXFIX.jed
+# Test binary for 144k use SUPER_EXROM.jed
 AB.bin: AB.a78
 	python3 build144k.py AB.a78
 
 # Test binary for 128k with 2600+ extend to 256k ROM use SUPER.jed
-RType2.bin: RType2.a78
-	python3 build128k.py RType2.a78
+RType2xm.bin: RType2.a78
+	python3 addxm.py RType2.a78 ff10
+	python3 fixemptyblocks.py RType2xm.a78
+	sign7800 -w RType2xm.a78
+	python3 stripheader.py RType2xm.a78
+	python3 filltosize.py RType2xm.bin 256
 
 # Test binary for 256k with 2600+ hack use SUPER.jed
-1942.bin: 1942.a78
-	python3 build256kp.py 1942.a78
+1942xm.bin: 1942.a78
+	python3 addxm.py 1942.a78
+	python3 fixemptyblocks.py 1942xm.a78
+	sign7800 -w 1942xm.a78
+	python3 stripheader.py 1942xm.a78
 
 # Test binary for 4k 2600 game use 74LS02_16k.jed
 Warlords.bin: Warlords.a26
