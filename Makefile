@@ -13,6 +13,7 @@ objects= \
 	breakout.bin \
 	Easter.bin \
 	Cracked.bin \
+	Crackedexrom.bin \
 	AB.bin \
 	1942xm.bin \
 	RType2xm.bin \
@@ -62,9 +63,17 @@ breakout.bin: breakout.a78
 Easter.bin: Easter.a78
 	python3 build48k.py Easter.a78
 
+# Test binary for 128k use SUPER_EXROM.jed
+# This will create a 256k ROM
+Crackedexrom.bin: Cracked.a78
+	sign7800 -w Cracked.a78
+	python3 exfix2exrom.py Cracked.a78
+	python3 build144k.py Crackedexrom.a78
+
 # Test binary for 128k use SUPER_EXFIX.jed
 Cracked.bin: Cracked.a78
-	python3 stripheader.py Cracked.a78
+	sign7800 -w Cracked.a78
+	python3 build128k.py Cracked.a78
 	python3 filltosize.py Cracked.bin 256
 
 # Test binary for 144k use SUPER_EXROM.jed
