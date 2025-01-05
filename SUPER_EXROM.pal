@@ -40,7 +40,7 @@ pin  5 A14;   pin 20 !ROMCS;
 pin  6 A15;   pin 19 BA14;
 pin  7 P_7;   pin 18 BA15;
 pin  8 D3;    pin 17 BA16;
-pin  9 D0;    pin 16 BA17;
+pin  9 D0;    pin 16 !BA17;
 pin 10 D1;    pin 15 !OEO;
 pin 11 D2;    pin 14 BA19;
 pin 12 GND;   pin 13 !OE;
@@ -52,7 +52,7 @@ pin 12 GND;   pin 13 !OE;
    BA14 :=  D0;
    BA15 :=  D1;
    BA16 :=  D2;
-   BA17  =   !A15 &  A14            ; // 2nd ROM is high 128k
+   BA17  =   !A15 &  A14            ; // 2nd ROM is all slots low 128k
 
 // Don't use ZA14 at all
  ZA14.OE =   0;
