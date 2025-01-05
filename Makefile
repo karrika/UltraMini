@@ -69,6 +69,7 @@ Cracked.bin: Cracked.a78
 
 # Test binary for 144k use SUPER_EXROM.jed
 AB.bin: AB.a78
+	sign7800 -w AB.a78
 	python3 build144k.py AB.a78
 
 # Test binary for 128k with 2600+ extend to 256k ROM use SUPER.jed
