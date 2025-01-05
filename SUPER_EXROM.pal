@@ -64,7 +64,7 @@ pin 12 GND;   pin 13 !OE;
 // Detect write to bankswitch selection
     WR =  A15 & !A14 & !RW & CLK2 ; // 8000-BFFF read from data bus
 
-// Handle the chip output enable to let resitors power bank at C000-FFFF
+// Handle the chip output enable to let resistors power bank at C000-FFFF
          OEO = !A14; 
 
 // 20V8R needs OE term for non-registered outputs
