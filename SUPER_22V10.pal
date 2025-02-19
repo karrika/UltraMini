@@ -32,15 +32,15 @@
 chip 22V10;
 
 pin  1 CLK;   pin 24 VCC;
-pin  2 RW;    pin 23 D5;
+pin  2 RW;    pin 23 BA18;
 pin  3 CLK2;  pin 22 !WR;
 pin  4 D4;    pin 21 ZA14;
 pin  5 A14;   pin 20 !ROMCS;
 pin  6 A15;   pin 19 BA14;
-pin  7 P_7;   pin 18 BA15;
+pin  7 D5;    pin 18 BA15;
 pin  8 D3;    pin 17 BA16;
 pin  9 D0;    pin 16 BA17;
-pin 10 D1;    pin 15 BA18;
+pin 10 D1;    pin 15 OEO;
 pin 11 D2;    pin 14 BA19;
 pin 12 GND;   pin 13 !OE;
 
@@ -55,6 +55,9 @@ pin 12 GND;   pin 13 !OE;
    BA18 :=  D4;
    BA19 :=  D5;
 
+// Set !OE
+   OEO = 0;
+
 // Set ROMCS for address range 8000-FFFF read
    ROMCS =  A15 & RW ;
 
@@ -62,10 +65,12 @@ pin 12 GND;   pin 13 !OE;
     WR =  A15 & !A14 & !RW & CLK2 ; // 8000-BFFF read from data bus
 
 // Handle the chip output enable
-   D5.OE = 0;
+  OEO.OE = 1;
    WR.OE = 1;
  ZA14.OE = 0;
 ROMCS.OE = 1;
+
+// Let resistors power bank C000-FFFF
  BA14.OE = !A14;
  BA15.OE = !A14;
  BA16.OE = !A14;
