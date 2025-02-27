@@ -1,8 +1,9 @@
 import sys
-''' Add activation for 16k RAM and YM2152 sound chip in binary '''
+''' Write different strings to empty blocks '''
+''' It writes the patched file as filenameh.a78 '''
 def main():
     if len(sys.argv) < 2:
-        print("Usage: python3 addxm.py <filename> [xmpos] [bin]")
+        print("Usage: python3 fixemptyblocks.py <filename>")
         return
 
     filename = sys.argv[1]
@@ -11,17 +12,9 @@ def main():
         with open(filename, 'rb') as f:
             data = f.read()
         ''' scan for empty pages '''
-        emptyblock = bytearray()
-        for k in range(2 * 1024):
-            emptyblock.append(0x45)
-            emptyblock.append(0x4D)
-            emptyblock.append(0x50)
-            emptyblock.append(0x54)
-            emptyblock.append(0x59)
-            emptyblock.append(0x2D)
-            emptyblock.append(0x2D)
-            emptyblock.append(0x20)
         newdata = data[:128]
+        blocknr1 = 0x30
+        blocknr10 = 0x30
         for i in range(int((len(data) - 128) / (16 * 1024))):
             start = 128 + i * 16 * 1024
             val = data[start]
@@ -31,9 +24,23 @@ def main():
                     empty = 0
             if empty == 1:
                 print('block',i,'is empty')
+                emptyblock = bytearray()
+                for k in range(2 * 1024):
+                    emptyblock.append(0x45)
+                    emptyblock.append(0x4D)
+                    emptyblock.append(0x50)
+                    emptyblock.append(0x54)
+                    emptyblock.append(0x59)
+                    emptyblock.append(blocknr10)
+                    emptyblock.append(blocknr1)
+                    emptyblock.append(0x20)
                 newdata += emptyblock
             else:
                 newdata += data[start:start + 16 * 1024]
+            blocknr1 += 1
+            if blocknr1 > 0x39:
+                blocknr1 = 0x30
+                blocknr10 += 1
         data = newdata
         ''' this was needed as 2600+ barfed on empty pages '''
         filename = filename.rsplit( ".", 1)[0] + ".a78"
